@@ -38,8 +38,6 @@ export default function EventMap({ evt }) {
 
   if (loading) return false
 
-  console.log(lat, lng)
-
   return (
     <MapGL
       style={{ width: '100%', height: '400px' }}
