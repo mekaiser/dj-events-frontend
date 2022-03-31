@@ -1,28 +1,46 @@
+import ImageUpload from '@/components/ImageUpload'
 import Layout from '@/components/Layout'
+import Modal from '@/components/Modal'
 import { API_URL } from '@/config/index'
 import { parseCookies } from '@/helpers/index'
 import styles from '@/styles/Form.module.css'
+import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { FaImage } from 'react-icons/fa'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-const AddEventPage = ({token}) => {
+const EditEventPage = ({ evt, token }) => {
+  const {
+    data: {
+      attributes: { name, performers, venue, address, date, time, description },
+    },
+  } = evt
+
   const [values, setValues] = useState({
-    name: '',
-    performers: '',
-    venue: '',
-    address: '',
-    date: '',
-    time: '',
-    description: '',
+    name: name,
+    performers: performers,
+    venue: venue,
+    address: address,
+    date: date,
+    time: time,
+    description: description,
   })
+
+  const [imagePreview, setImagePreview] = useState(
+    evt.data.attributes.image.data
+      ? evt.data.attributes.image.data.attributes.formats.thumbnail.url
+      : null
+  )
+
+  const [showModal, setShowModal] = useState(false)
 
   const router = useRouter()
 
   const handleSubmit = async (e) => {
-    console.log("Cookie here", token)
     e.preventDefault()
 
     // Validation
@@ -34,20 +52,18 @@ const AddEventPage = ({token}) => {
       toast.error('Please fill in all fields')
     }
 
-    console.log("Here I am");
-
-    const res = await fetch(`${API_URL}api/events`, {
-      method: 'POST',
+    const res = await fetch(`${API_URL}api/events/${evt.data.id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(values),
     })
 
     if (!res.ok) {
       if (res.status === 403 || res.status === 401) {
-        toast.error('No token included')
+        toast.error('Unauthorized')
         return
       }
       toast.error('Something Went Wrong')
@@ -62,10 +78,20 @@ const AddEventPage = ({token}) => {
     const { name, value } = e.target
     setValues((prev) => ({ ...prev, [name]: value }))
   }
+
+  const imageUploaded = async (e) => {
+    const res = await fetch(`${API_URL}api/events/${evt.data.id}?populate=*`)
+    const data = await res.json()
+    console.log(data)
+    setImagePreview(
+      data.data.attributes.image.data.attributes.formats.thumbnail.url
+    )
+    setShowModal(false)
+  }
   return (
     <Layout title='Add New Event'>
       <Link href='/events'>Go Back</Link>
-      <h1>Add Event</h1>
+      <h1>Edit Event</h1>
       <ToastContainer />
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.grid}>
@@ -115,7 +141,7 @@ const AddEventPage = ({token}) => {
               type='date'
               id='date'
               name='date'
-              value={values.date}
+              value={moment(values.date).format('yyyy-MM-DD')}
               onChange={handleInputChange}
             />
           </div>
@@ -140,20 +166,47 @@ const AddEventPage = ({token}) => {
             onChange={handleInputChange}
           ></textarea>
         </div>
-        <input type='submit' value='Add Event' className='btn' />
+        <input type='submit' value='Update Event' className='btn' />
       </form>
+      <h2>Event Image</h2>
+      {imagePreview ? (
+        <Image src={imagePreview} height={100} width={170} alt={name} />
+      ) : (
+        <div>
+          <p>No image uploaded</p>
+        </div>
+      )}
+      <div>
+        <button
+          onClick={() => setShowModal(true)}
+          className='btn btn-secondary'
+        >
+          <FaImage /> Set Image
+        </button>
+      </div>
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload
+          evtId={evt.data.id}
+          imageUploaded={imageUploaded}
+          token={token}
+        />
+      </Modal>
     </Layout>
   )
 }
 
-export default AddEventPage
+export default EditEventPage
 
-export async function getServerSideProps({ req}) {
-  const {token}  = parseCookies(req)
+export async function getServerSideProps({ params: { id }, req }) {
+  const { token } = parseCookies(req)
+
+  const res = await fetch(`${API_URL}api/events/${id}?populate=*`)
+  const evt = await res.json()
+
   return {
     props: {
-      token
-    }
+      evt,
+      token,
+    },
   }
-
 }
