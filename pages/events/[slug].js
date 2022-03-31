@@ -1,3 +1,4 @@
+import EventMap from '@/components/EventMap'
 import Layout from '@/components/Layout'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Event.module.css'
@@ -8,7 +9,6 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 export default function EventPage({ evt }) {
-  console.log(evt)
   const router = useRouter()
   // const deleteEvent = async (e) => {
   //   if (confirm('Are you sure ?')) {
@@ -64,6 +64,8 @@ export default function EventPage({ evt }) {
             <p>{evt.attributes.description}</p>
             <h3>Venue: {evt.attributes.venue}</h3>
             <p>{evt.attributes.address}</p>
+
+            <EventMap evt={evt} />
 
             <Link href='/events'>
               <a className={styles.back}>{'<'} Go Back</a>
