@@ -38,7 +38,7 @@ export default function EventPage({ evt }) {
             <FaTimes /> Delete Event
           </a>
         </div> */}
-        
+
         <span>
           {new Date(evt.attributes.date).toLocaleDateString('en-US')} at{' '}
           {evt.attributes.time}
@@ -65,7 +65,7 @@ export default function EventPage({ evt }) {
             <h3>Venue: {evt.attributes.venue}</h3>
             <p>{evt.attributes.address}</p>
 
-            <EventMap evt={evt} />
+            {evt.attributes.address && <EventMap evt={evt} />}
 
             <Link href='/events'>
               <a className={styles.back}>{'<'} Go Back</a>
@@ -113,15 +113,15 @@ export default function EventPage({ evt }) {
 // }
 
 // ** Alternative **
-export async function getServerSideProps({query: {slug}}) {
-  const res = await fetch(`${API_URL}api/events?populate=*&filters[slug][$eq]=${slug}`)
+export async function getServerSideProps({ query: { slug } }) {
+  const res = await fetch(
+    `${API_URL}api/events?populate=*&filters[slug][$eq]=${slug}`
+  )
   const events = await res.json()
-
 
   return {
     props: {
-      evt: events.data[0]
-    }
-
+      evt: events.data[0],
+    },
   }
 }
