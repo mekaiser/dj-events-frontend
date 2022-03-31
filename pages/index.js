@@ -4,7 +4,6 @@ import { API_URL } from '@/config/index'; // must say index explicitly
 import Link from 'next/link';
 
 export default function HomePage({ events }) {
-  console.log("Events", events)
   return (
     <Layout>
       <h1>Upcoming Events</h1>
@@ -23,8 +22,6 @@ export default function HomePage({ events }) {
 
 export async function getStaticProps() {
   const res = await fetch(`${API_URL}api/events?populate=*&sort=date:ASC&pagination[start]=0&pagination[limit]=2`)
-
-  console.log(`${API_URL}api/events?populate=*&sort=date:ASC&pagination[start]=0&pagination[limit]=2`)
 
   const events = await res.json()
 

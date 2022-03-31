@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 export default function EventPage({ evt }) {
+  console.log(evt)
   const router = useRouter()
   // const deleteEvent = async (e) => {
   //   if (confirm('Are you sure ?')) {
@@ -74,49 +75,51 @@ export default function EventPage({ evt }) {
   )
 }
 
-export async function getStaticPaths() {
-  const res = await fetch(`${API_URL}api/events`)
-  const events = await res.json()
+// export async function getStaticPaths() {
+//   const res = await fetch(`${API_URL}api/events`)
+//   const events = await res.json()
 
-  const paths = events.data.map((evt) => ({
-    params: { slug: evt.attributes.slug },
-  }))
-  return {
-    // ** Return format here **
-    // {
-    //   paths: [
-    //     {params: {slug: 1}},
-    //     {params: {slug: 2}},
-    //     {params: {slug: 3}},
-    //   ]
-    // }
-    paths,
-    fallback: false,
-  }
-}
+//   const paths = events.data.map((evt) => ({
+//     params: { slug: evt.attributes.slug },
+//   }))
+//   return {
+//     // ** Return format here **
+//     // {
+//     //   paths: [
+//     //     {params: {slug: 1}},
+//     //     {params: {slug: 2}},
+//     //     {params: {slug: 3}},
+//     //   ]
+//     // }
+//     paths,
+//     fallback: false,
+//   }
+// }
 
-export async function getStaticProps({ params: { slug } }) {
-  const res = await fetch(
-    `${API_URL}api/events?populate=*&filters[slug][$eq]=${slug}`
-  )
-  const events = await res.json()
-  return {
-    props: {
-      evt: events.data[0],
-      // evt: `${API_URL}api/events?filters[slug][$eq]=${slug}`,
-    },
-    revalidate: 1,
-  }
-}
-
-// ** Alternative **
-// export async function getServerSideProps({query: {slug}}) {
-//   const res = await fetch(`${API_URL}api/events/${slug}`)
+// export async function getStaticProps({ params: { slug } }) {
+//   const res = await fetch(
+//     `${API_URL}api/events?populate=*&filters[slug][$eq]=${slug}`
+//   )
 //   const events = await res.json()
 //   return {
 //     props: {
-//       evt: events[0]
-//     }
-
+//       evt: events.data[0],
+//       // evt: `${API_URL}api/events?filters[slug][$eq]=${slug}`,
+//     },
+//     revalidate: 1,
 //   }
 // }
+
+// ** Alternative **
+export async function getServerSideProps({query: {slug}}) {
+  const res = await fetch(`${API_URL}api/events?populate=*&filters[slug][$eq]=${slug}`)
+  const events = await res.json()
+
+
+  return {
+    props: {
+      evt: events.data[0]
+    }
+
+  }
+}
