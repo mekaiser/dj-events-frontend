@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@urbica/react-map-gl": "^1.15.0",
     "cookie": "^0.4.2",
+    "mapbox-gl": "^1.13.2",
     "moment": "^2.29.1",
     "next": "12.1.0",
     "qs": "^6.10.3",

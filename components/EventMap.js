@@ -1,8 +1,8 @@
+import MapGL, { Marker } from '@urbica/react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import Geocode from 'react-geocode'
-import ReactMapGl, { Marker } from 'react-map-gl'
 
 export default function EventMap({ evt }) {
   const [lat, setLat] = useState(null)
@@ -41,14 +41,16 @@ export default function EventMap({ evt }) {
   console.log(lat, lng)
 
   return (
-    <ReactMapGl
+    <MapGL
+      style={{ width: '100%', height: '400px' }}
+      mapStyle='mapbox://styles/mapbox/light-v9'
+      accessToken={process.env.NEXT_PUBLIC_MAPBOX_API_TOKEN}
+      onViewportChange={setViewport}
       {...viewport}
-      mapboxApiAccessToken={process.env.NEXT_PUBLIC_MAPBOX_API_TOKEN}
-      onViewportChange={(vp) => setViewport(vp)}
     >
       <Marker key={evt.id} latitude={lat} longitude={lng}>
         <Image src='/images/pin.svg' width={30} height={30} />
       </Marker>
-    </ReactMapGl>
+    </MapGL>
   )
 }
